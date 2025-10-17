@@ -1,0 +1,2 @@
+riscv64-unknown-elf-objcopy -O binary hello.elf hello.bin
+hexdump -v -e '1/4 "%08x\n"' hello.bin > hello.mem

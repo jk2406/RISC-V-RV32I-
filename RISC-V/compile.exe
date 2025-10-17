@@ -1,0 +1,10 @@
+# compile
+riscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -O2 -c crt0.S -o crt0.o
+riscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -O2 -c hello.c -o hello.o
+
+# link
+riscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -nostdlib -T link.ld crt0.o hello.o -o hello.elf
+
+# inspect
+riscv64-unknown-elf-objdump -D hello.elf | sed -n '1,120p'
+

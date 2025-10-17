@@ -1,0 +1,3 @@
+riscv64-unknown-elf-objcopy -O verilog -j .text hello.elf imem.hex
+riscv64-unknown-elf-objcopy -O binary hello.elf imem.bin
+hexdump -v -e '1/4 "%08x\n"' imem.bin > imem.mem

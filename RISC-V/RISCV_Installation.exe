@@ -1,0 +1,84 @@
+#!/bin/bash
+set -euo pipefail
+
+# -------------------------
+# 1) Update package lists
+# -------------------------
+sudo apt update
+
+# -------------------------
+# 2) Install build dependencies
+#    These are the typical packages required to build the riscv toolchain.
+# -------------------------
+sudo apt install -y \
+  autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+  gawk build-essential bison flex texinfo libtool gperf patchutils bc \
+  zlib1g-dev libusb-1.0-0-dev device-tree-compiler python3 python3-pip git
+
+# (Optional helpful utilities)
+sudo apt install -y wget unzip
+
+# -------------------------
+# 3) Create installation prefix
+#    We'll install the toolchain under /opt/riscv (system-wide). Change if you prefer $HOME/riscv.
+# -------------------------
+sudo mkdir -p /opt/riscv
+sudo chown "$USER":"$USER" /opt/riscv           # make sure current user can write there
+
+# -------------------------
+# 4) Clone the riscv-gnu-toolchain repo (recursive to fetch submodules)
+# -------------------------
+# If you already cloned before, skip this 'git clone' and `cd` into the existing repo.
+git clone --recursive https://github.com/riscv/riscv-gnu-toolchain.git
+cd riscv-gnu-toolchain
+
+# (Optional) checkout a tagged release for stability:
+# git checkout <tag>     # e.g. git checkout 2023.08.0
+
+# -------------------------
+# 5) Configure and build
+#    By default this builds the "newlib" (bare-metal) toolchain which provides stdio.h/newlib C library.
+#    Use -j$(nproc) to parallelize by number of CPU cores.
+# -------------------------
+# Set install prefix environment variable
+export RISCV=/opt/riscv
+
+# Configure to install under $RISCV
+./configure --prefix="$RISCV"
+
+# Build the whole toolchain (this may take a long time: tens of minutes to hours depending on CPU)
+make -j"$(nproc)"
+
+# If you only want the bare-metal C library toolchain (explicit), you can use:
+# make newlib -j"$(nproc)"
+
+# -------------------------
+# 6) Add toolchain bin to PATH (persist across shells)
+# -------------------------
+# Append to ~/.bashrc if not already present
+if ! grep -q 'export PATH=.*/opt/riscv/bin' ~/.bashrc 2>/dev/null; then
+  printf '\n# Add RISC-V GNU toolchain to PATH\nexport RISCV=/opt/riscv\nexport PATH=$RISCV/bin:$PATH\n' >> ~/.bashrc
+fi
+
+# Source the rc to update current shell immediately
+export RISCV=/opt/riscv
+export PATH=$RISCV/bin:$PATH
+
+# -------------------------
+# 7) Verify installation
+# -------------------------
+echo "==== Toolchain verification ===="
+riscv64-unknown-elf-gcc --version || true
+riscv32-unknown-elf-gcc --version || true
+
+echo "If the above commands show version strings, installation succeeded."
+echo "Open a NEW terminal or 'source ~/.bashrc' to persist PATH for future sessions."
+
+# -------------------------
+# Troubleshooting notes (quick):
+#  - If you get "stdio.h: No such file or directory" when compiling:
+#      * Ensure you built the 'newlib' variant (the above make normally builds it).
+#      * Try: make newlib -j$(nproc) and reinstall.
+#  - If 'make' fails due to missing packages, install the package mentioned in the error and re-run.
+#  - If you prefer a user-local install, change RISCV to $HOME/riscv and create that directory instead.
+# -------------------------
