@@ -234,7 +234,7 @@ This section explains how to use **Vivado** to synthesize your RISC-V CPU and lo
    * `RISC_v.sv` (CPU)
    * `riscv.xdc` (constraints file)
    * `imem.coe` (instruction memory initialization)
-   * `wrappe.sv`(To instantiate BRAMs)
+   * `wrapper.sv`(To instantiate BRAMs)
 
 3. Add these files to your **Vivado project sources**:
 
