@@ -58,7 +58,7 @@ Here’s a brief overview of the files in this repository and their purpose:
 | `RISCV_Installation.exe`             | Installer for required tools (if provided).                |
 | `imem.coe`                           | Used to initialize BRAMs                                   |
 | `wrapper.sv`                         | Used to instantiate BRAMs                                  |
-Got it! We can write the **Getting Started** section in a friendly, step-by-step style like you described, guiding the user clearly. Here's a polished version for your documentation:
+
 
 ---
 
