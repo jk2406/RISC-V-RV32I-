@@ -56,6 +56,7 @@ Here’s a brief overview of the files in this repository and their purpose:
 | `tb.sv`                              | Testbench for the CPU simulation.                          |
 | `riscv.xdc`                          | Constraints file for FPGA implementation.                  |
 | `RISCV_Installation.exe`             | Installer for required tools (if provided).                |
+| `imem.coe`                           | Used to initialize BRAMs
 Got it! We can write the **Getting Started** section in a friendly, step-by-step style like you described, guiding the user clearly. Here's a polished version for your documentation:
 
 ---
@@ -211,6 +212,74 @@ This allows you to observe instructions moving through all five pipeline stages,
 * **Usage:** Run this before compiling C programs to generate memory files.
 
 ---
+
+Perfect! If you are providing a `.coe` file, we can simplify the Vivado instructions to just using the `.coe` for memory initialization. Here’s the updated guide in your style:
+
+---
+
+## USING VIVADO TO SYNTHESIZE
+
+This section explains how to use **Vivado** to synthesize your RISC-V CPU and load instruction memory using the `.coe` file.
+**To understand this section you must have basic understanding of Vivado and its workflow as basics are skipped.**
+
+---
+
+### 1. Copy Files into Vivado Project
+
+1. Open Vivado and create a new project.
+
+2. Copy the following files into your project directory:
+
+   * `RISC_v.sv` (CPU)
+   * `riscv.xdc` (constraints file)
+   * `imem.coe` (instruction memory initialization)
+
+3. Add these files to your **Vivado project sources**:
+
+   * `Add Sources → Add or Create Design Sources → Browse and Add RISC_v.sv`
+   * `Add Constraints → Add Files → Browse and Add riscv.xdc`
+
+---
+
+### 2. Generate BRAM Using `.coe` File
+
+1. Open **IP Catalog** in Vivado.
+2. Search for **Block Memory Generator**.
+3. Configure the BRAM:
+
+   * Set memory type: **Dual Port** (Since the implemented CPU is harvard architecture).
+   * In the **Initialization** section, select **Load Initialization File** and browse to `imem.coe`.
+4. Click **Generate** to create the BRAM IP with your program preloaded.
+
+---
+
+### 3. Instantiate BRAM in Top Module
+
+1. Open your top module (`RISC_v.sv`) or create a wrapper module.
+2. Instantiate the BRAM IP generated from the `.coe` file:
+3.Surf to the code,at the starting BRAM block has been initialized.Use wrapper module(`wrapper.sv`) and then initialize as shown.
+4. Connect this BRAM to your CPU module as **Instruction Memory (IMEM)**.
+
+---
+
+### 4.  Generate ILA for Debugging
+
+1. Search for **ILA (Integrated Logic Analyzer)** in **IP Catalog**.
+2. Configure probes for the signals you want to monitor `pc`(pragram counter).
+3. Instantiate the ILA in your top module and connect CPU signals to the probes.
+
+---
+
+### 5. Synthesize and Program FPGA
+
+1. Run **Synthesis**, then **Implementation**.
+2. Generate **Bitstream**.
+3. Open **Hardware Manager**, program your FPGA, and use ILA for real-time signal monitoring.
+
+---
+
+ **Note:** Using the `.coe` file eliminates the need to manually convert `.mem` or `.bin` files for instruction memory. Just ensure the `.coe` is correctly formatted and placed in the Vivado project directory.
+
 
 
 
